@@ -1,0 +1,222 @@
+openapi: 3.0.1
+info:
+  title: API по работе с клиентами банка
+  description: REST Open API
+  version: "1.0.0"
+servers:
+- url: http://localhost:8090
+  description: "URL сервера"
+tags:
+- name: client
+  description: 'API client'
+security:
+  - basicAuth: []
+paths:
+  /client:
+    get:
+      tags:
+      - client
+      summary: "Поиск всех клиентов"
+      description: "Поиск всех клиентов"
+      operationId: getAll
+      responses:
+        "400":
+          description: "ОШИБКА неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "200":
+          description: "УСПЕШНО!"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+        "403":
+          $ref: '#/components/responses/UnauthorizedError'
+    put:
+      tags:
+      - client
+      summary: "Обновление клиента"
+      description: "Обновление клиента"
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+      responses:
+        "200":
+          description: "УСПЕШНО!"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        "404":
+          description: "ОШИБКА: клиент не найден"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "400":
+          description: "ОШИБКА: неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+    post:
+      tags:
+      - client
+      summary: "Создание нового клиента"
+      description: "Создание нового клиента"
+      operationId: save
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+      responses:
+        "200":
+          description: "УСПЕШНО!"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        "409":
+          description: "ОШИБКА: такой клиент уже существует"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "400":
+          description: "ОШИБКА: неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+  /client/{id}:
+    get:
+      tags:
+      - client
+      summary: "Поиск клиента по ID"
+      description: "Поиск клиента по ID"
+      operationId: getById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: "УСПЕШНО!"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        "404":
+          description: "ОШИБКА: клиент не найден"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "400":
+          description: "ОШИБКА: неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+    delete:
+      tags:
+      - client
+      summary: "Удаление клиента"
+      description: "Удаление клиента"
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: "УСПЕШНО!"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        "404":
+          description: "ОШИБКА: клиент не найден"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "400":
+          description: "ОШИБКА: неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+components:
+  securitySchemes:
+    basicAuth:
+        type: http
+        scheme: basic
+  responses:
+    UnauthorizedError:
+      description: "ОШИБКА аутентификации"
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+  schemas:
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: "HTTP ОШИБКА"
+          example: "400"
+        errorDescription:
+          type: string
+          description: "ОШИБКА описания"
+          example: "Такой клиент отсутствует в базе данных"
+    Client:
+      required:
+      - client_id
+      type: object
+      properties:
+        client_id:
+          type: integer
+          description: "Уникальный идентификатор клиента"
+          format: int64
+          example: 3
+        fname:
+          type: string
+          description: "Имя клиента"
+          example: "Иван"
+        lname:
+          type: string
+          description: "Фамилия клиента"
+          example: "Иванов"
+        contract:
+          type: string
+          description: "Номер контракта"
+          example: "РГС-000452321/07-2020"
+        location:
+          type: string
+          description: "Адрес клиента"
+          example: "г. Москва ул. Тверская д.23 стр.4 кв.22"
+        tel:
+          type: string
+          description: "Телефон клиента"
+          example: "89448991212"
+        money:
+          type: number
+          description: "Денежные средства (RUB)"
+          example: "742465.56"
+          format: double
